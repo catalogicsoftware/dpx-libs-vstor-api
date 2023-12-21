@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -75,6 +76,11 @@ public abstract class VstorClient {
   protected <T> T get(String url, Class<T> responseType) {
     var builder = HttpRequest.newBuilder(URI.create(url)).GET();
     return send(builder, responseType);
+  }
+
+  protected byte[] getAndDownload(String url) {
+    var builder = HttpRequest.newBuilder(URI.create(url)).GET();
+    return sendAndDownload(builder);
   }
 
   protected void delete(String url) {
@@ -148,6 +154,12 @@ public abstract class VstorClient {
     return parseResponse(response, responseType);
   }
 
+  private byte[] sendAndDownload(HttpRequest.Builder requestBuilder) {
+    var request =
+        requestBuilder.header("Authorization", authorizationHeader(vstorConnection)).build();
+    return sendAndDownload(request);
+  }
+
   private HttpResponse<String> send(HttpRequest request) {
     try {
       var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -162,6 +174,29 @@ public abstract class VstorClient {
       Thread.currentThread().interrupt();
       throw new VstorConnectionException(
           VSTOR_REQUEST_FAIL_MESSAGE + ", cause: " + e.getMessage(), e);
+    }
+  }
+
+  private byte[] sendAndDownload(HttpRequest request) {
+    try {
+      var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      if (isFailureHttpCode(response.statusCode())) {
+        throw new VstorConnectionException(getErrorMessageFromBytes(request, response));
+      }
+      return getDataFromResponse(response);
+    } catch (IOException e) {
+      throw new VstorConnectionException(
+          VSTOR_REQUEST_FAIL_MESSAGE + ", cause: " + e.getMessage(), e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new VstorConnectionException(
+          VSTOR_REQUEST_FAIL_MESSAGE + ", cause: " + e.getMessage(), e);
+    }
+  }
+
+  private byte[] getDataFromResponse(HttpResponse<InputStream> response) throws IOException {
+    try (var bodyStream = response.body()) {
+      return bodyStream.readAllBytes();
     }
   }
 
@@ -196,6 +231,23 @@ public abstract class VstorClient {
       throw new JsonParsingException(
           "Failed to parse vStor error message. Raw response: %s"
               .formatted(StringUtils.normalizeSpace(body)));
+    }
+    return builder.toString();
+  }
+
+  private String getErrorMessageFromBytes(HttpRequest request, HttpResponse<InputStream> response) {
+    var builder = new StringBuilder();
+    builder.append(String.format("HTTP Request %s %s ", request.method(), request.uri()));
+    builder.append(String.format("failed with code %s", response.statusCode()));
+    try (var bodyStream = response.body()) {
+      var body = bodyStream.readAllBytes();
+      var errorResponse = objectMapper.readValue(body, ErrorResponse.class);
+      builder.append(
+          String.format(
+              ", error type: %s, error message: '%s'",
+              errorResponse.error().type(), errorResponse.error().message()));
+    } catch (IOException e) {
+      throw new JsonParsingException("Failed to parse vStor error message");
     }
     return builder.toString();
   }

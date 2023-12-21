@@ -38,6 +38,6 @@ public class FilesystemServiceImpl extends VstorClient implements FilesystemServ
 
   @Override
   public byte[] downloadFile(int volumeId, String filePath) {
-    return null;
+    return getAndDownload(getApiUrl() + FILESYSTEM_ENDPOINT.formatted(volumeId, filePath));
   }
 }
