@@ -1,4 +1,4 @@
-package com.catalogic.dpx.libs.vstor;
+package com.catalogic.dpx.libs.vstor.exception;
 
 public class VstorConnectionException extends RuntimeException {
 
