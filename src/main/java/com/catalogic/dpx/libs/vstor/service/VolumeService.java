@@ -14,4 +14,6 @@ public interface VolumeService {
   Volume getVolumeByName(String volumeName);
 
   Volume createVolumeFromSnapshot(VolumeFromSnapshotRequest request);
+
+  void deleteVolume(int volumeId);
 }

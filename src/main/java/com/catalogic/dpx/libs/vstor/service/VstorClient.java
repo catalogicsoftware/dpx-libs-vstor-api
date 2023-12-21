@@ -73,6 +73,19 @@ public abstract class VstorClient {
     return send(builder, responseType);
   }
 
+  protected void delete(String url) {
+    var builder = HttpRequest.newBuilder(URI.create(url)).DELETE();
+    send(builder, Void.class);
+  }
+
+  protected <T> T put(String url, BodyPublisher bodyPublisher, Class<T> responseType) {
+    var builder =
+        HttpRequest.newBuilder(URI.create(url))
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .PUT(bodyPublisher);
+    return send(builder, responseType);
+  }
+
   private static SSLContext insecureContext() {
 
     try {
