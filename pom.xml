@@ -15,6 +15,7 @@
     <junit-jupiter.version>5.10.1</junit-jupiter.version>
     <commons-lang.version>3.14.0</commons-lang.version>
     <jackson.version>2.16.0</jackson.version>
+    <http-client.version>5.3</http-client.version>
   </properties>
 
   <dependencies>
@@ -32,6 +33,16 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>${http-client.version}</version>
     </dependency>
 
     <dependency>
