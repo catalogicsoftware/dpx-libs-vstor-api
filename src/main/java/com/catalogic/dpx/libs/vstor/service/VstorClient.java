@@ -154,12 +154,6 @@ public abstract class VstorClient {
     return parseResponse(response, responseType);
   }
 
-  private byte[] sendAndDownload(HttpRequest.Builder requestBuilder) {
-    var request =
-        requestBuilder.header("Authorization", authorizationHeader(vstorConnection)).build();
-    return sendAndDownload(request);
-  }
-
   private HttpResponse<String> send(HttpRequest request) {
     try {
       var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -175,6 +169,12 @@ public abstract class VstorClient {
       throw new VstorConnectionException(
           VSTOR_REQUEST_FAIL_MESSAGE + ", cause: " + e.getMessage(), e);
     }
+  }
+
+  private byte[] sendAndDownload(HttpRequest.Builder requestBuilder) {
+    var request =
+        requestBuilder.header("Authorization", authorizationHeader(vstorConnection)).build();
+    return sendAndDownload(request);
   }
 
   private byte[] sendAndDownload(HttpRequest request) {
