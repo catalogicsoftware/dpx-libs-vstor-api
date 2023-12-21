@@ -1,8 +1,11 @@
 package com.catalogic.dpx.libs.vstor.service;
 
 import com.catalogic.dpx.libs.vstor.model.Volume;
+import com.catalogic.dpx.libs.vstor.model.VolumeFromSnapshotRequest;
 import com.catalogic.dpx.libs.vstor.model.VolumeList;
 import com.catalogic.dpx.libs.vstor.model.VstorConnection;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.nio.charset.StandardCharsets;
 
 public class VolumeServiceImpl extends VstorClient implements VolumeService {
   private static final String VOLUME_BY_ID = "/volume?id=%s";
@@ -32,5 +35,13 @@ public class VolumeServiceImpl extends VstorClient implements VolumeService {
   @Override
   public Volume getVolumeByName(String volumeName) {
     return get(getApiUrl() + VOLUME_BY_NAME.formatted(volumeName), Volume.class);
+  }
+
+  @Override
+  public Volume createVolumeFromSnapshot(VolumeFromSnapshotRequest request) {
+    return post(
+        getApiUrl() + VOLUMES,
+        BodyPublishers.ofString(serializeToJson(request), StandardCharsets.UTF_8),
+        Volume.class);
   }
 }

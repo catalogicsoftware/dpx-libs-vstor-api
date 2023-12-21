@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
@@ -49,8 +51,20 @@ public abstract class VstorClient {
     return apiUrl;
   }
 
+  protected String serializeToJson(Object request) {
+    try {
+      return objectMapper.writeValueAsString(request);
+    } catch (JsonProcessingException e) {
+      throw new JsonParsingException(
+          "Object serialize error cause: %s".formatted(e.getMessage()), e);
+    }
+  }
+
   protected <T> T post(String url, BodyPublisher bodyPublisher, Class<T> responseType) {
-    var builder = HttpRequest.newBuilder(URI.create(url)).POST(bodyPublisher);
+    var builder =
+        HttpRequest.newBuilder(URI.create(url))
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .POST(bodyPublisher);
     return send(builder, responseType);
   }
 
