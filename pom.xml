@@ -16,6 +16,7 @@
     <commons-lang.version>3.14.0</commons-lang.version>
     <jackson.version>2.16.0</jackson.version>
     <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
+    <http-client.version>5.3</http-client.version>
   </properties>
 
   <dependencies>
@@ -43,6 +44,11 @@
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
       <version>${jakarta.ws.rs-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>${http-client.version}</version>
     </dependency>
 
     <dependency>

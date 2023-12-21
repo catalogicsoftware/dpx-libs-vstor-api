@@ -6,7 +6,7 @@ import com.catalogic.dpx.libs.vstor.model.MountedFilesystems;
 public interface FilesystemService {
   MountedFilesystems getMountedFilesystems();
 
-  void uploadFile(int volumeId, String destinationPath);
+  void uploadFile(int volumeId, String destinationPath, String fileName, byte[] fileBytes);
 
   Filesystem getDirectoryContent(int volumeId, String directoryPath);
 

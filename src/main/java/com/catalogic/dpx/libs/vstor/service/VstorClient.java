@@ -13,23 +13,27 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Base64;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.core5.http.HttpEntity;
 
 public abstract class VstorClient {
   private static final String VSTOR_REQUEST_FAIL_MESSAGE = "Failed to send request to vStor";
@@ -78,12 +82,19 @@ public abstract class VstorClient {
     send(builder, Void.class);
   }
 
-  protected <T> T put(String url, BodyPublisher bodyPublisher, Class<T> responseType) {
-    var builder =
-        HttpRequest.newBuilder(URI.create(url))
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .PUT(bodyPublisher);
-    return send(builder, responseType);
+  protected void putMultipart(String url, HttpEntity entity) {
+    try (var byteArrayOs = new ByteArrayOutputStream()) {
+      entity.writeTo(byteArrayOs);
+      var builder =
+          HttpRequest.newBuilder(URI.create(url))
+              .header(HttpHeaders.CONTENT_TYPE, entity.getContentType())
+              .timeout(Duration.ofMinutes(1))
+              .PUT(BodyPublishers.ofByteArray(byteArrayOs.toByteArray()));
+
+      send(builder, Void.class);
+    } catch (IOException e) {
+      throw new VstorConnectionException("Multipart Request error cause: " + e.getMessage(), e);
+    }
   }
 
   private static SSLContext insecureContext() {

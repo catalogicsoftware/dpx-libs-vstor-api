@@ -3,6 +3,8 @@ package com.catalogic.dpx.libs.vstor.service;
 import com.catalogic.dpx.libs.vstor.model.Filesystem;
 import com.catalogic.dpx.libs.vstor.model.MountedFilesystems;
 import com.catalogic.dpx.libs.vstor.model.VstorConnection;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.ContentType;
 
 public class FilesystemServiceImpl extends VstorClient implements FilesystemService {
   private static final String MOUNTED_FILESYSTEMS_ENDPOINT = "/volume?type=mountedfilesystem";
@@ -18,7 +20,15 @@ public class FilesystemServiceImpl extends VstorClient implements FilesystemServ
   }
 
   @Override
-  public void uploadFile(int volumeId, String destinationPath) {}
+  public void uploadFile(int volumeId, String destinationPath, String fileName, byte[] fileBytes) {
+    var httpEntity =
+        MultipartEntityBuilder.create()
+            .addBinaryBody(fileName, fileBytes, ContentType.TEXT_PLAIN, fileName)
+            .build();
+
+    putMultipart(
+        getApiUrl() + FILESYSTEM_ENDPOINT.formatted(volumeId, destinationPath), httpEntity);
+  }
 
   @Override
   public Filesystem getDirectoryContent(int volumeId, String directoryPath) {
