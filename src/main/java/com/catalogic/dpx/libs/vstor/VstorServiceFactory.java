@@ -15,27 +15,27 @@ import com.catalogic.dpx.libs.vstor.service.VolumeService;
 import com.catalogic.dpx.libs.vstor.service.VolumeServiceImpl;
 
 public class VstorServiceFactory {
-  public static AuthenticatorService authenticatorService(VstorConnection vstorConnection) {
+  public AuthenticatorService authenticatorService(VstorConnection vstorConnection) {
     return new AuthenticatorServiceImpl(vstorConnection);
   }
 
-  public static FilesystemService filesystemService(VstorConnection vstorConnection) {
+  public FilesystemService filesystemService(VstorConnection vstorConnection) {
     return new FilesystemServiceImpl(vstorConnection);
   }
 
-  public static GfrService gfrService(VstorConnection vstorConnection) {
+  public GfrService gfrService(VstorConnection vstorConnection) {
     return new GfrServiceImpl(vstorConnection);
   }
 
-  public static ShareService shareService(VstorConnection vstorConnection) {
+  public ShareService shareService(VstorConnection vstorConnection) {
     return new ShareServiceImpl(vstorConnection);
   }
 
-  public static SnapshotService snapshotService(VstorConnection vstorConnection) {
+  public SnapshotService snapshotService(VstorConnection vstorConnection) {
     return new SnapshotServiceImpl(vstorConnection);
   }
 
-  public static VolumeService volumeService(VstorConnection vstorConnection) {
+  public VolumeService volumeService(VstorConnection vstorConnection) {
     return new VolumeServiceImpl(vstorConnection);
   }
 }
